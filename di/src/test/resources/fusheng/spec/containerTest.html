@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>容器</title>
+</head>
+<body>
+<p>容器SBE</p>
+<div class="example">
+    <span class="function" data-action="initContainer">容器</span>
+    可以用来托管一个类，
+    例如对于一个类
+    <span class="variable" data-name="className">Foo</span>
+    可以将其
+    <span class="function" data-action="register" data-params="className">注册</span>
+    到容器中
+    <p>
+        container.register(Foo.class);
+    </p>
+    然后可以
+    <span class="function" data-action="getFoo" data-params="className">从容器中获取</span>
+    <span class="assertion" data-action="getActualClazzName" data-expect="equal">Foo</span>
+    的实例
+    <p>
+        container.getInstance(Foo.class);
+    </p>
+</div>
+</body>
+</html>

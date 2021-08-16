@@ -1,4 +1,4 @@
-package livedoc.fixtures;
+package livedoc.utils;
 
 public class ReflectionUtils {
 

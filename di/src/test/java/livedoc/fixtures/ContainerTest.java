@@ -2,9 +2,10 @@ package livedoc.fixtures;
 
 import com.mmaozi.di.Container;
 import com.thoughtworks.fusheng.integration.junit5.FuShengTest;
+import livedoc.utils.ReflectionUtils;
 
 @FuShengTest
-public class containerTest {
+public class ContainerTest {
 
     private Container container;
     private Object clazz;

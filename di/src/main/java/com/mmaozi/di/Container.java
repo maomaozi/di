@@ -1,6 +1,7 @@
 package com.mmaozi.di;
 
 import com.mmaozi.di.exception.CreateInstanceFailedException;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,14 +14,15 @@ public class Container {
     }
 
     public Object getInstance(Class<?> clazz) {
-        if (registeredClass.contains(clazz)) {
-            try {
-                return clazz.getConstructor().newInstance();
-            } catch (Exception e) {
-                throw new CreateInstanceFailedException(
-                    "Cannot find proper constructor for class " + clazz.getSimpleName());
-            }
+        if (!registeredClass.contains(clazz)) {
+            throw new CreateInstanceFailedException(clazz.getSimpleName() + " is not register in container");
         }
-        return null;
+
+        try {
+            return clazz.getConstructor().newInstance();
+        } catch (Exception e) {
+            throw new CreateInstanceFailedException(
+                    "Cannot find proper constructor for class " + clazz.getSimpleName());
+        }
     }
 }

@@ -5,7 +5,7 @@
     <title>容器</title>
 </head>
 <body>
-<p>容器SBE</p>
+<h3>例子1：注册类到容器</h3>
 <div class="example">
     <span class="function" data-action="initContainer">容器</span>
     可以用来托管一个类，
@@ -24,6 +24,21 @@
     <p>
         container.getInstance(Foo.class);
     </p>
+</div>
+
+<h3>例子2：从容器获取一个未注册实例</h3>
+
+<div class="example">
+    如果直接从一个
+    <span class="function" data-action="initContainer">容器</span>
+    中获取一个非托管类
+    <span class="variable" data-name="className">Foo</span>,
+    <p>
+        container.getInstance(Foo.class);
+    </p>
+    容器会抛出一个
+    <span class="assertion" data-action="tryGetUnRegisteredClass" data-expect="equal" data-params="className">CreateInstanceFailedException</span>
+    异常
 </div>
 </body>
 </html>

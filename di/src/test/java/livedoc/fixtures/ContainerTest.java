@@ -25,4 +25,14 @@ public class ContainerTest {
     public String getActualClazzName() {
         return clazz.getClass().getSimpleName();
     }
+
+    public String tryGetUnRegisteredClass(String className) {
+        try {
+            container.getInstance(ReflectionUtils.getClassByName(className));
+        } catch (Exception ex) {
+            return ex.getClass().getSimpleName();
+        }
+
+        return "no exception";
+    }
 }

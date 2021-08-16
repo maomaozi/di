@@ -14,16 +14,16 @@
     可以将其
     <span class="function" data-action="register" data-params="className">注册</span>
     到容器中
-    <p>
+    <pre><code>
         container.register(Foo.class);
-    </p>
+    </code></pre>
     然后可以
     <span class="function" data-action="getFoo" data-params="className">从容器中获取</span>
     <span class="assertion" data-action="getActualClazzName" data-expect="equal">Foo</span>
     的实例
-    <p>
+    <pre><code>
         container.getInstance(Foo.class);
-    </p>
+    </code></pre>
 </div>
 
 <h3>例子2：从容器获取一个未注册实例</h3>
@@ -33,9 +33,9 @@
     <span class="function" data-action="initContainer">容器</span>
     中获取一个非托管类
     <span class="variable" data-name="className">Foo</span>,
-    <p>
+    <pre><code>
         container.getInstance(Foo.class);
-    </p>
+    </code></pre>
     容器会抛出一个
     <span class="assertion" data-action="tryGetUnRegisteredClass" data-expect="equal" data-params="className">CreateInstanceFailedException</span>
     异常

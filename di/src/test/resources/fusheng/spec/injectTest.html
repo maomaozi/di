@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<h3>例子1：构造函数存在简单依赖</h3>
+<div class="example">
+    <span class="function" data-action="initContainer">容器</span>中
+    <span class="function" data-action="registerClass" data-params="className">
+        注册了类<span class="variable" data-name="className">Bar</span>
+    </span>，
+    它的构造函数存在一些依赖，可以用@Inject注解修饰这个构造函数，
+    <pre><code>
+        public Bar{
+            private Foo foo;
+
+            @Inject
+            Foo(Foo foo){
+                this.foo = foo;
+            }
+        }
+    </code></pre>
+    <span class="function" data-action="getInstance" data-params="className">容器在实例化</span>
+    这个类的时候，
+    会试图从托管的类中寻找其所需的依赖，并调用对应的构造方法，
+    从而正确注入其所需要的依赖
+    <span class="assertion" data-action="tryGetDependencyNameInBar" data-expect="equal"
+          data-params="className">Bar</span>
+</div>
+
+</body>
+</html>

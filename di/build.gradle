@@ -19,5 +19,7 @@ dependencies {
 
     implementation 'com.google.guava:guava:30.0-jre'
     implementation 'org.projectlombok:lombok:1.18.20'
+    implementation 'javax.inject:javax.inject:1'
+
     annotationProcessor 'org.projectlombok:lombok:1.18.20'
 }

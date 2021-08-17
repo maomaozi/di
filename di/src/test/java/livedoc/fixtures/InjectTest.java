@@ -1,6 +1,7 @@
 package livedoc.fixtures;
 
 import com.thoughtworks.fusheng.integration.junit5.FuShengTest;
+import livedoc.fixtures.objects.Bar;
 
 @FuShengTest
 public class InjectTest extends BaseFixture {

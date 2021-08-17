@@ -1,4 +1,4 @@
-package livedoc.fixtures;
+package livedoc.fixtures.objects;
 
 
 import javax.inject.Inject;

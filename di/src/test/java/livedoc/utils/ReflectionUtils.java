@@ -7,6 +7,6 @@ public class ReflectionUtils {
     }
 
     public static Class<?> getClassByName(String className) throws ClassNotFoundException {
-        return Class.forName(String.format("livedoc.fixtures.%s", className));
+        return Class.forName(String.format("livedoc.fixtures.objects.%s", className));
     }
 }

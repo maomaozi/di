@@ -11,7 +11,7 @@
     <span class="function" data-action="initContainer">初始化一个容器</span>，
     将类<span class="variable" data-name="className">Bar</span>
     <span class="function" data-action="registerClass" data-params="className">注册到容器中</span>，
-    Bar 代码如下，其构造函数存在对 Foo 类的依赖，这里可以用 @Inject 注解修饰这个构造函数，同时这个构造函数不必是public的
+    Bar 类的代码如下，其构造函数存在对 Foo 类的依赖，这里可以用 @Inject 注解修饰这个构造函数，同时注意这个构造函数不必是 public 的
     <pre><code>
         public class Bar {
             private Foo foo;
@@ -28,13 +28,22 @@
     </code></pre>
 
     然后将其的依赖项<span class="variable" data-name="classNameForDependency">Foo</span>也
-    <span class="function" data-action="registerClass" data-params="classNameForDependency">注册到容器中</span>，
+    <span class="function" data-action="registerClass" data-params="classNameForDependency">注册到容器中</span>
 
-    <span class="function" data-action="getInstanceFromContainer" data-params="className">容器在实例化</span>
-    这个类的时候，
-    会试图从托管的类中寻找其所需的依赖，并调用对应的构造方法，
-    从而正确注入其所需要的依赖
+    <pre><code>
+        container.register(Foo.class);
+    </code></pre>
+
+    当通过
+    <span class="function" data-action="getInstanceFromContainer" data-params="className">容器实例化</span>
+    Bar类的时候
+    <pre><code>
+        container.getInstance(Bar.class);
+    </code></pre>
+    容器会试图从其托管的类中寻找 Bar 所需的依赖，并调用对应的构造方法，
+    最终可以获得正确注入了依赖
     <span class="assertion" data-action="tryGetDependencyNameInBar" data-expect="equal">Foo</span>
+    的 Bar 实例
 </div>
 
 </body>

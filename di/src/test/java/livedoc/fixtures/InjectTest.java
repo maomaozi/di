@@ -11,6 +11,15 @@ public class InjectTest extends BaseFixture {
         clazz = (Bar) getInstance(className);
     }
 
+    public String getInstanceWithCircularDependency(String className) throws ClassNotFoundException {
+        try {
+            getInstance(className);
+        } catch (Exception ex) {
+            return ex.getClass().getSimpleName();
+        }
+        return "no exception";
+    }
+
     public String tryGetDependencyNameInBar() {
         return clazz.getFoo().getClass().getSimpleName();
     }

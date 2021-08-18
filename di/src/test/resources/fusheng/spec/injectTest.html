@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Inject</title>
 </head>
 <body>
 
@@ -35,8 +35,8 @@
     </code></pre>
 
     当通过
-    <span class="function" data-action="getInstanceFromContainer" data-params="className">容器实例化</span>
-    Bar类的时候
+    容器<span class="function" data-action="getInstanceFromContainer" data-params="className">实例化</span>
+    Bar 类的时候
     <pre><code>
         container.getInstance(Bar.class);
     </code></pre>
@@ -44,6 +44,35 @@
     最终可以获得正确注入了依赖
     <span class="assertion" data-action="tryGetDependencyNameInBar" data-expect="equal">Foo</span>
     的 Bar 实例
+</div>
+
+<h3>例子2：构造函数存在循环依赖</h3>
+<div class="example">
+    <span class="function" data-action="initContainer">初始化一个容器</span>，
+    将类<span class="variable" data-name="className">Circus</span>
+    <span class="function" data-action="registerClass" data-params="className">注册到容器中</span>，
+    Circus 类的代码如下，其@Inject修饰的构造函数存在对 Circus 类自身的循环依赖
+    <pre><code>
+        public class Circus {
+            private Circus circus;
+
+            @Inject
+            Circus(Circus circus) {
+                this.circus = circus;
+            }
+        }
+    </code></pre>
+
+    当通过容器实例化
+    <span class="variable" data-name="className">Circus</span>
+    类的时候
+    <pre><code>
+        container.getInstance(Circus.class);
+    </code></pre>
+    容器会抛出
+    <span class="assertion" data-action="getInstanceWithCircularDependency"
+          data-expect="equal" data-params="className">CreateInstanceFailedException</span>
+    异常
 </div>
 
 </body>

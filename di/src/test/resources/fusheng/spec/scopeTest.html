@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Scope</title>
+</head>
+<body>
+
+<h3>例子1：使用 Singleton 来使得托管类为单例</h3>
+<div class="example">
+    <span class="function" data-action="initContainer">初始化一个容器</span>，
+    将类<span class="variable" data-name="className">Buzz</span>
+    <span class="function" data-action="registerClass" data-params="className">注册到容器中</span>，
+    Buzz 类的代码如下，其构造函数存在对 Foo 类的依赖，这里用 @Singleton 注解修饰构造方法的Foo
+    <pre><code>
+        public class Buzz {
+            private final Foo foo;
+
+            @Inject
+            Buzz(@Singleton Foo foo) {
+                this.foo = foo;
+            }
+
+            public Foo getFoo() {
+                return foo;
+            }
+        }
+    </code></pre>
+
+    然后将其的依赖项<span class="variable" data-name="classNameForDependency">Foo</span>也
+    <span class="function" data-action="registerClass" data-params="classNameForDependency">注册到容器中</span>
+
+    <pre><code>
+        container.register(Foo.class);
+    </code></pre>
+
+    然后从容器
+    <span class="function" data-action="getFirstBuzz">实例化第一个Buzz实例</span>，
+    接下来
+    <span class="function" data-action="getSecondBuzz">再实例化一个Buzz实例</span>，
+
+    <span class="function" data-action="assertBuzzEquals">最终两个 Buzz 实例地址并不相等</span>
+    <span class="function" data-action="assertFooEquals">但是两个 Buzz 中的两个 Foo 实例地址相等</span>
+
+</div>
+
+</body>
+</html>

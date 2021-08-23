@@ -4,12 +4,16 @@ import com.google.common.collect.Iterables;
 import com.mmaozi.di.exception.CreateInstanceFailedException;
 
 import javax.inject.Qualifier;
+import javax.inject.Singleton;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
@@ -20,14 +24,26 @@ public class Container {
 
     private final Set<Class<?>> registeredClass = new HashSet<>();
     private final Stack<Class<?>> creationStack = new Stack<>();
+    private final Map<Class<?>, Object> singletons = new HashMap<>();
 
     public void register(Class<?> clazz) {
         registeredClass.add(clazz);
     }
 
     public <T> T getInstance(Class<T> clazz) {
+        return getInstance(clazz, null);
+    }
+
+    private <T> T getInstance(Class<T> clazz, AnnotatedElement from) {
         if (!registeredClass.contains(clazz)) {
             throw new CreateInstanceFailedException(clazz.getSimpleName() + " is not register in container");
+        }
+
+        boolean isSingleton = Objects.nonNull(clazz.getDeclaredAnnotation(Singleton.class)) ||
+                (Objects.nonNull(from) && Objects.nonNull(from.getDeclaredAnnotation(Singleton.class)));
+
+        if (isSingleton && singletons.containsKey(clazz)) {
+            return (T) singletons.get(clazz);
         }
 
         checkCircularDependency(clazz);
@@ -38,7 +54,12 @@ public class Container {
         List<Object> parameters = instantiateParameters(clazz, constructor);
 
         try {
-            return (T) constructor.newInstance(parameters.toArray());
+            Object instance = constructor.newInstance(parameters.toArray());
+
+            if (isSingleton) {
+                singletons.put(clazz, instance);
+            }
+            return (T) instance;
         } catch (Exception ex) {
             throw new CreateInstanceFailedException("Cannot create new instance for class " + clazz.getSimpleName(), ex);
         }
@@ -48,8 +69,7 @@ public class Container {
 
         creationStack.push(clazz);
         List<Object> parameters = Arrays.stream(constructor.getParameters())
-                                        .map(this::resolveRealType)
-                                        .map(this::getInstance)
+                                        .map(parameter -> getInstance(resolveRealType(parameter), parameter))
                                         .collect(Collectors.toList());
         creationStack.pop();
 

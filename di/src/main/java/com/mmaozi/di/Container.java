@@ -91,10 +91,13 @@ public class Container {
     private String buildCircularDependencyErrorMessage(int idx) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Found circular dependencies while creating class ");
+        stringBuilder.append(creationStack.get(idx).getName());
+        stringBuilder.append("\n-----------------------------\n");
+        stringBuilder.append(creationStack.get(idx).getSimpleName());
 
         for (int i = idx; i < creationStack.size(); ++i) {
             stringBuilder
-                    .append("Depends ")
+                    .append("\n ↓ \n")
                     .append(creationStack.get(i).getSimpleName())
                     .append("\n");
         }

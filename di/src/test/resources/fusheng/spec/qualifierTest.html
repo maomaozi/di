@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Qualifier</title>
+</head>
+<body>
+
+<h3>例子1：使用 Qualifier 指明具体的实现类</h3>
+<div class="example">
+
+    <span class="function" data-action="initContainer">初始化一个容器</span>，
+    将类<span class="variable" data-name="className">Car,Engine,GasEngine,DieselEngine</span>
+    <span class="function" data-action="registerClasses" data-params="className">注册到容器中</span>，
+    Car 类的代码如下
+    <pre><code>
+        public class Car {
+            private final Engine engine;
+
+            @Inject
+            public Car(@Gas Engine engine) {
+                this.engine = engine;
+            }
+
+            public String getEngineName() {
+                return engine.getName();
+            }
+        }
+    </code></pre>
+
+    其存在对于 Engine 接口的依赖， Engine 的实现有两个，分别是
+
+    <pre><code>
+        @Gas
+        public class GasEngine implements Engine {
+            private static final String name = "Gas";
+
+            @Override
+            public String getName() {
+                return name;
+            }
+        }
+    </code></pre>
+
+    以及
+
+    <pre><code>
+        @Diesel
+        public class DieselEngine implements Engine {
+            private static final String name = "Diesel";
+
+            @Override
+            public String getName() {
+                return name;
+            }
+        }
+    </code></pre>
+
+    如上所示，可以在注入的时候，利用 @Qualifier 构建新的注解，
+
+    <pre><code>
+        @Documented
+        @Retention(RetentionPolicy.RUNTIME)
+        @Qualifier
+        public @interface Gas {
+        }
+    </code></pre>
+
+    <pre><code>
+        @Documented
+        @Retention(RetentionPolicy.RUNTIME)
+        @Qualifier
+        public @interface Diesel {
+        }
+    </code></pre>
+
+    然后用这些注解标注对应的具体实现类，从而
+    <span class="function" data-action="getCarInstance">通过容器获取到 Car 的实例后</span>，
+    调用其getEngineName方法可以
+    成功取得 engine 类型为
+    <span class="assertion" data-action="getEngineNameInCar" data-expect="equal">Gas</span>
+
+</div>
+</body>
+</html>

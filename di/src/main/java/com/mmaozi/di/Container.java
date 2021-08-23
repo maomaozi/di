@@ -2,10 +2,14 @@ package com.mmaozi.di;
 
 import com.mmaozi.di.exception.CreateInstanceFailedException;
 
+import javax.inject.Qualifier;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
@@ -43,11 +47,36 @@ public class Container {
 
         creationStack.push(clazz);
         List<Object> parameters = Arrays.stream(constructor.getParameters())
-                                        .map(parameter -> getInstance(parameter.getType()))
+                                        .map(this::resolveRealType)
+                                        .map(this::getInstance)
                                         .collect(Collectors.toList());
         creationStack.pop();
 
         return parameters;
+    }
+
+    private Class<?> resolveRealType(Parameter parameter) {
+        Class<?> type = parameter.getType();
+
+        if (!type.isInterface()) {
+            return type;
+        }
+
+        return Arrays.stream(parameter.getDeclaredAnnotations())
+                     .map(Annotation::annotationType)
+                     .filter(annotation -> Objects.nonNull(annotation.getAnnotation(Qualifier.class)))
+                     .map(this::getClassWithAnnotation)
+                     .findFirst()
+                     .orElseThrow(() -> new CreateInstanceFailedException("No qualified implement for interface " + parameter.getClass().getSimpleName()));
+
+    }
+
+    private Class<?> getClassWithAnnotation(Class<? extends Annotation> annotation) {
+        return registeredClass
+                .stream()
+                .filter(clz -> Objects.nonNull(clz.getDeclaredAnnotation(annotation)))
+                .findFirst()
+                .orElseThrow(() -> new CreateInstanceFailedException("No proper class found for qualifier " + annotation.getSimpleName()));
     }
 
     private void checkCircularDependency(Class<?> clazz) {

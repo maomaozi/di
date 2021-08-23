@@ -1,5 +1,6 @@
 package com.mmaozi.di;
 
+import com.google.common.collect.Iterables;
 import com.mmaozi.di.exception.CreateInstanceFailedException;
 
 import javax.inject.Qualifier;
@@ -71,12 +72,25 @@ public class Container {
     }
 
     private Class<?> getClassWithAnnotation(Annotation annotation) {
-        return registeredClass
+        List<Class<?>> matchedClasses = registeredClass
                 .stream()
                 .filter(clz -> matchClassWithAnnotation(clz, annotation))
-                .findFirst()
-                .orElseThrow(() -> new CreateInstanceFailedException("No proper class found for qualifier " +
-                        annotation.annotationType().getSimpleName()));
+                .collect(Collectors.toList());
+
+        if (matchedClasses.isEmpty()) {
+            throw new CreateInstanceFailedException("No proper class found for qualifier @" + annotation.annotationType().getSimpleName());
+        }
+
+        if (matchedClasses.size() > 1) {
+            throw new CreateInstanceFailedException(String.format("More than one qualified class found for qualifier @%s:\n%s",
+                    annotation.annotationType().getSimpleName(),
+                    matchedClasses.stream()
+                                  .map(Class::getName)
+                                  .collect(Collectors.joining("\n"))
+            ));
+        }
+
+        return Iterables.getLast(matchedClasses);
     }
 
     private boolean matchClassWithAnnotation(Class<?> clz, Annotation annotation) {

@@ -28,9 +28,7 @@ public class ReflectionUtils {
             return false;
         }
 
-        Method[] methods = lhs.annotationType().getDeclaredMethods();
-
-        for (Method method : methods) {
+        for (Method method : lhs.annotationType().getDeclaredMethods()) {
 
             Object lhsValue = method.invoke(lhs);
             Object rhsValue = method.invoke(rhs);

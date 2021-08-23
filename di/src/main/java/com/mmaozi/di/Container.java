@@ -24,7 +24,7 @@ public class Container {
         registeredClass.add(clazz);
     }
 
-    public Object getInstance(Class<?> clazz) {
+    public <T> T getInstance(Class<T> clazz) {
         if (!registeredClass.contains(clazz)) {
             throw new CreateInstanceFailedException(clazz.getSimpleName() + " is not register in container");
         }
@@ -37,7 +37,7 @@ public class Container {
         List<Object> parameters = instantiateParameters(clazz, constructor);
 
         try {
-            return constructor.newInstance(parameters.toArray());
+            return (T) constructor.newInstance(parameters.toArray());
         } catch (Exception ex) {
             throw new CreateInstanceFailedException("Cannot create new instance for class " + clazz.getSimpleName(), ex);
         }

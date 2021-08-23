@@ -81,5 +81,79 @@
     <span class="assertion" data-action="getEngineNameInCar" data-expect="equal">Gas</span>
 
 </div>
+
+<h3>例子2：使用带属性的 Qualifier 指明具体的实现类</h3>
+<div class="example">
+
+    <span class="function" data-action="initContainer">初始化一个容器</span>，
+    将类<span class="variable" data-name="className">Bike,Wheel,BigWheel,SmallWheel</span>
+    <span class="function" data-action="registerClasses" data-params="className">注册到容器中</span>，
+    Bike 类的代码如下
+    <pre><code>
+        public class Bike {
+
+            private final Wheel wheel;
+
+            @Inject
+            public Bike(@WheelType(type = BIG) Wheel wheel) {
+                this.wheel = wheel;
+            }
+
+            public String getWheelType() {
+                return wheel.getType();
+            }
+        }
+    </code></pre>
+
+    其存在对于 Wheel 接口的依赖， Wheel 的实现有两个，分别是
+
+    <pre><code>
+        @WheelType(type = WheelType.Type.BIG)
+        public class BigWheel implements Wheel {
+            private static final String name = "Big";
+
+            @Override
+            public String getType() {
+                return name;
+            }
+        }
+    </code></pre>
+
+    以及
+
+    <pre><code>
+        @WheelType(type = WheelType.Type.SMALL)
+        public class SmallWheel implements Wheel {
+            private static final String name = "Small";
+
+            @Override
+            public String getType() {
+                return name;
+            }
+        }
+    </code></pre>
+
+    WheelType注解的相关代码如下，其中包括一个枚举，定义了 BIG 和 SMALL 两种 Wheel 尺寸
+
+    <pre><code>
+        @Documented
+        @Retention(RetentionPolicy.RUNTIME)
+        @Qualifier
+        public @interface WheelType {
+            Type type() default Type.SMALL;
+
+            enum Type {
+                BIG, SMALL
+            }
+        }
+    </code></pre>
+
+    然后用这些注解标注对应的具体实现类，从而
+    <span class="function" data-action="getBikeInstance">通过容器获取到 Bike 的实例后</span>，
+    调用其getWheel方法可以
+    成功取得 wheel 类型为
+    <span class="assertion" data-action="getBikeWheelType" data-expect="equal">Big</span>
+
+</div>
 </body>
 </html>

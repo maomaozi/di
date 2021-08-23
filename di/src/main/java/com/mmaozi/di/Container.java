@@ -63,20 +63,33 @@ public class Container {
         }
 
         return Arrays.stream(parameter.getDeclaredAnnotations())
-                     .map(Annotation::annotationType)
-                     .filter(annotation -> Objects.nonNull(annotation.getAnnotation(Qualifier.class)))
+                     .filter(annotation -> Objects.nonNull(annotation.annotationType().getAnnotation(Qualifier.class)))
                      .map(this::getClassWithAnnotation)
                      .findFirst()
                      .orElseThrow(() -> new CreateInstanceFailedException("No qualified implement for interface " + parameter.getClass().getSimpleName()));
 
     }
 
-    private Class<?> getClassWithAnnotation(Class<? extends Annotation> annotation) {
+    private Class<?> getClassWithAnnotation(Annotation annotation) {
         return registeredClass
                 .stream()
-                .filter(clz -> Objects.nonNull(clz.getDeclaredAnnotation(annotation)))
+                .filter(clz -> matchClassWithAnnotation(clz, annotation))
                 .findFirst()
-                .orElseThrow(() -> new CreateInstanceFailedException("No proper class found for qualifier " + annotation.getSimpleName()));
+                .orElseThrow(() -> new CreateInstanceFailedException("No proper class found for qualifier " +
+                        annotation.annotationType().getSimpleName()));
+    }
+
+    private boolean matchClassWithAnnotation(Class<?> clz, Annotation annotation) {
+        Annotation declaredAnnotation = clz.getDeclaredAnnotation(annotation.annotationType());
+        if (Objects.isNull(declaredAnnotation)) {
+            return false;
+        }
+
+        try {
+            return ReflectionUtils.compareAnnotation(declaredAnnotation, annotation);
+        } catch (Exception ex) {
+            throw new CreateInstanceFailedException("Unexpected exception", ex);
+        }
     }
 
     private void checkCircularDependency(Class<?> clazz) {

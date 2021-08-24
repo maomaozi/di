@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>App</title>
+</head>
+<body>
+<h3>例子1：使用 ContainedApp</h3>
+<div class="example">
+    构建一个简单的MyApp，代码如下，其中有一个可注入的构造方法以及一个依赖 Wheel，同时，main 方法被 @Main 注解标注，作为容器app的入口点
+    <pre><code>
+    @Getter
+    @Singleton
+    public class MyApp {
+
+        private String result;
+        private final Wheel wheel;
+
+        @Inject
+        public MyApp(@WheelType(type = SMALL) Wheel wheel) {
+            this.wheel = wheel;
+        }
+
+        @Main
+        public void main(String prefix) {
+            result = String.format("%s %s", prefix, wheel.getType());
+        }
+    }
+</code></pre>
+    <span class="function" data-action="initApp">创建一个新的 ContainedApp，</span>
+    然后使用启动参数
+    <span class="variable" data-name="prefix">Hello</span>
+    <span class="function" data-action="runApp" data-params="prefix">来运行</span>
+    我们的App，最终 MyApp 中的result 正确设置为
+    <span class="assertion" data-action="getMyAppResult" data-expect="equal">Hello Small</span>
+
+</div>
+</body>
+</html>

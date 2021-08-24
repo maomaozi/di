@@ -6,7 +6,7 @@
 </head>
 <body>
 
-<h3>例子1：使用 Qualifier 指明具体的实现类</h3>
+<h3>例子1：使用 @Qualifier 指明具体的实现类</h3>
 <div class="example">
 
     <span class="function" data-action="initContainer">初始化一个容器</span>，
@@ -76,13 +76,12 @@
 
     然后用这些注解标注对应的具体实现类，从而
     <span class="function" data-action="getCarInstance">通过容器获取到 Car 的实例后</span>，
-    调用其getEngineName方法可以
-    成功取得 engine 类型为
+    调用其getEngineName方法可以成功取得 engine 类型为
     <span class="assertion" data-action="getEngineNameInCar" data-expect="equal">Gas</span>
 
 </div>
 
-<h3>例子2：使用带属性的 Qualifier 指明具体的实现类</h3>
+<h3>例子2：使用带属性的 @Qualifier 指明具体的实现类</h3>
 <div class="example">
 
     <span class="function" data-action="initContainer">初始化一个容器</span>，
@@ -150,9 +149,39 @@
 
     然后用这些注解标注对应的具体实现类，从而
     <span class="function" data-action="getBikeInstance">通过容器获取到 Bike 的实例后</span>，
-    调用其getWheel方法可以
-    成功取得 wheel 类型为
+    调用其getWheel方法可以成功取得 wheel 类型为
     <span class="assertion" data-action="getBikeWheelType" data-expect="equal">Big</span>
+
+</div>
+
+<h3>例子3：使用 @Named 指明具体的实现类</h3>
+<div class="example">
+
+    <span class="function" data-action="initContainer">初始化一个容器</span>，
+    将类<span class="variable" data-name="className">MotoBike,Wheel,BigWheel,SmallWheel</span>
+    <span class="function" data-action="registerClasses" data-params="className">注册到容器中</span>，
+    MotoBike 类的代码如下
+    <pre><code>
+        public class MotoBike {
+
+            private final Wheel wheel;
+
+            @Inject
+            public MotoBike(@Named("smallWheel") Wheel wheel) {
+                this.wheel = wheel;
+            }
+
+            public String getWheelType() {
+                return wheel.getType();
+            }
+        }
+    </code></pre>
+
+    其存在对于 Wheel 接口的依赖，并且使用 @Named("smallWheel") 注解指明了Wheel的实现，对应Wheel的实现类上也有相同的注解
+
+    <span class="function" data-action="getMotoBikeInstance">通过容器获取到 Bike 的实例后</span>，
+    调用其getWheel方法可以成功取得 wheel 类型为
+    <span class="assertion" data-action="getMotoBikeWheelType" data-expect="equal">Small</span>
 
 </div>
 </body>

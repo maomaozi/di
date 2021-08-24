@@ -1,11 +1,17 @@
 package com.mmaozi.di.utils;
 
+import com.google.common.reflect.ClassPath;
+
 import javax.inject.Inject;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ReflectionUtils {
 
@@ -44,6 +50,22 @@ public class ReflectionUtils {
             }
         }
         return true;
+    }
+
+    public static List<String> findAllClassesInPackage(Package pack) {
+
+        String packageName = pack.getName();
+
+        try {
+            return ClassPath.from(ClassLoader.getSystemClassLoader())
+                            .getAllClasses()
+                            .stream()
+                            .map(ClassPath.ClassInfo::getName)
+                            .filter(className -> className.startsWith(packageName))
+                            .collect(Collectors.toList());
+        } catch (IOException e) {
+            return Collections.emptyList();
+        }
     }
 
 }

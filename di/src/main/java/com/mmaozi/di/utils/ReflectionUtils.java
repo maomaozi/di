@@ -1,4 +1,4 @@
-package com.mmaozi.di;
+package com.mmaozi.di.utils;
 
 import javax.inject.Inject;
 import java.lang.annotation.Annotation;

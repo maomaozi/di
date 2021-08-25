@@ -22,4 +22,10 @@ public class BaseFixture {
         return clz.getClass().getSimpleName();
     }
 
+    public void registerClasses(String classes) throws ClassNotFoundException {
+        for (String className : classes.split(",")) {
+            registerClass(className);
+        }
+    }
+
 }

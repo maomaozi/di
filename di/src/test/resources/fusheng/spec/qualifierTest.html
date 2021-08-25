@@ -75,9 +75,11 @@
     </code></pre>
 
     然后用这些注解标注对应的具体实现类，从而
-    <span class="function" data-action="getCarInstance">通过容器获取到 Car 的实例后</span>，
-    调用其getEngineName方法可以成功取得 engine 类型为
-    <span class="assertion" data-action="getEngineNameInCar" data-expect="equal">Gas</span>
+    <span class="function" data-action="getInstance" data-params="className" data-return="car">
+        通过容器获取到 <span class="variable" data-name="className">Car</span> 的实例后
+    </span>，
+    调用其 getEngineName 方法可以成功取得 engine 类型为
+    <span class="assertion" data-actual="car.getEngineName()" data-expect="equal">Gas</span>
 
 </div>
 
@@ -147,10 +149,11 @@
         }
     </code></pre>
 
-    然后用这些注解标注对应的具体实现类，从而
-    <span class="function" data-action="getBikeInstance">通过容器获取到 Bike 的实例后</span>，
-    调用其getWheel方法可以成功取得 wheel 类型为
-    <span class="assertion" data-action="getBikeWheelType" data-expect="equal">Big</span>
+    <span class="function" data-action="getInstance" data-params="className" data-return="bike">
+        通过容器获取到 <span class="variable" data-name="className">Bike</span> 的实例后
+    </span>，
+    调用其 getWheel 方法可以成功取得 Wheel 类型为
+    <span class="assertion" data-actual="bike.getWheelType()" data-expect="equal">Big</span>
 
 </div>
 
@@ -179,9 +182,11 @@
 
     其存在对于 Wheel 接口的依赖，并且使用 @Named("smallWheel") 注解指明了Wheel的实现，对应Wheel的实现类上也有相同的注解
 
-    <span class="function" data-action="getMotoBikeInstance">通过容器获取到 Bike 的实例后</span>，
-    调用其getWheel方法可以成功取得 wheel 类型为
-    <span class="assertion" data-action="getMotoBikeWheelType" data-expect="equal">Small</span>
+    <span class="function" data-action="getInstance" data-params="className" data-return="motoBike">
+        通过容器获取到 <span class="variable" data-name="className">MotoBike</span> 的实例后
+    </span>，
+    调用其 getWheel 方法可以成功取得 Wheel 类型为
+    <span class="assertion" data-actual="motoBike.getWheelType()" data-expect="equal">Small</span>
 
 </div>
 </body>

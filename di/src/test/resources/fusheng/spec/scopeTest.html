@@ -27,21 +27,35 @@
         }
     </code></pre>
 
-    然后将其的依赖项<span class="variable" data-name="classNameForDependency">Foo</span>也
-    <span class="function" data-action="registerClass" data-params="classNameForDependency">注册到容器中</span>
+    <span class="function" data-action="registerClass" data-params="className">
+        然后注册其依赖项
+        <span class="variable" data-name="className">Foo</span>
+        到容器中
+    </span>
 
     <pre><code>
         container.register(Foo.class);
     </code></pre>
 
     然后从容器
-    <span class="function" data-action="getFirstBuzz">实例化第一个Buzz实例</span>，
-    接下来
-    <span class="function" data-action="getSecondBuzz">再实例化一个Buzz实例</span>，
+    <span class="function" data-action="getInstance" data-params="className" data-return="buzz1">
+        实例化第一个
+        <span class="variable" data-name="className">Buzz</span>
+        实例
+    </span>，
 
-    <span class="function" data-action="assertBuzzEquals">最终两个 Buzz 实例地址并不相等</span>
-    <span class="function" data-action="assertFooEquals">但是两个 Buzz 中的两个 Foo 实例地址相等</span>
+    <span class="function" data-action="getInstance" data-params="className" data-return="buzz2">
+        接下来再实例化一个
+        <span class="variable" data-name="className">Buzz</span>
+        实例
+    </span>，
 
+    <span class="assertion" data-actual="buzz1 === buzz2" data-expect="false">
+        最终两个 Buzz 实例地址并不相等
+    </span>
+    <span class="assertion" data-actual="buzz1.getFoo() === buzz2.getFoo()" data-expect="true">
+        但是两个 Buzz 中的两个 Foo 实例地址相等
+    </span>
 </div>
 
 </body>

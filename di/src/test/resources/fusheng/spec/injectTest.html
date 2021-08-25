@@ -35,14 +35,14 @@
     </code></pre>
 
     当通过
-    容器<span class="function" data-action="getInstanceFromContainer" data-params="className">实例化</span>
+    容器<span class="function" data-action="getInstance" data-params="className" data-return="instance">实例化</span>
     Bar 类的时候
     <pre><code>
         container.getInstance(Bar.class);
     </code></pre>
     容器会试图从其托管的类中寻找 Bar 所需的依赖，并调用对应的构造方法，
     最终可以获得正确注入了依赖
-    <span class="assertion" data-action="tryGetDependencyNameInBar" data-expect="equal">Foo</span>
+    <span class="assertion" data-action="getClassName" data-expect="equal" data-params="instance.getFoo()">Foo</span>
     的 Bar 实例
 </div>
 

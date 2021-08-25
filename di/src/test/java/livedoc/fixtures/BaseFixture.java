@@ -18,4 +18,8 @@ public class BaseFixture {
         return container.getInstance(ReflectionUtils.getClassByName(className));
     }
 
+    public String getClassName(Object clz) {
+        return clz.getClass().getSimpleName();
+    }
+
 }

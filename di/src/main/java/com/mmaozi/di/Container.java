@@ -2,30 +2,31 @@ package com.mmaozi.di;
 
 import com.google.common.collect.Iterables;
 import com.mmaozi.di.exception.CreateInstanceFailedException;
+import com.mmaozi.di.scope.ScopeProvider;
+import com.mmaozi.di.scope.SingletonProvider;
 import com.mmaozi.di.utils.ReflectionUtils;
 
 import javax.inject.Qualifier;
-import javax.inject.Singleton;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.util.Objects.nonNull;
+
 public class Container {
 
     private final Set<Class<?>> registeredClass = new HashSet<>();
     private final Stack<Class<?>> creationStack = new Stack<>();
-    private final Map<Class<?>, Object> singletons = new HashMap<>();
+    private final List<ScopeProvider> providers = List.of(new SingletonProvider());
 
     public void register(Class<?> clazz) {
         registeredClass.add(clazz);
@@ -40,11 +41,16 @@ public class Container {
             throw new CreateInstanceFailedException(clazz.getSimpleName() + " is not register in container");
         }
 
-        boolean isSingleton = Objects.nonNull(clazz.getDeclaredAnnotation(Singleton.class)) ||
-                (Objects.nonNull(from) && Objects.nonNull(from.getDeclaredAnnotation(Singleton.class)));
+        ScopeProvider scopeProvider = providers.stream()
+                                               .filter(provider -> provider.available(clazz, from))
+                                               .findFirst()
+                                               .orElse(null);
 
-        if (isSingleton && singletons.containsKey(clazz)) {
-            return (T) singletons.get(clazz);
+        if (nonNull(scopeProvider)) {
+            T instance = scopeProvider.getInstance(clazz);
+            if (nonNull(instance)) {
+                return instance;
+            }
         }
 
         checkCircularDependency(clazz);
@@ -57,8 +63,8 @@ public class Container {
         try {
             Object instance = constructor.newInstance(parameters.toArray());
 
-            if (isSingleton) {
-                singletons.put(clazz, instance);
+            if (nonNull(scopeProvider)) {
+                scopeProvider.registerInstance(instance);
             }
             return (T) instance;
         } catch (Exception ex) {
@@ -85,7 +91,7 @@ public class Container {
         }
 
         return Arrays.stream(parameter.getDeclaredAnnotations())
-                     .filter(annotation -> Objects.nonNull(annotation.annotationType().getAnnotation(Qualifier.class)))
+                     .filter(annotation -> nonNull(annotation.annotationType().getAnnotation(Qualifier.class)))
                      .map(this::getClassWithAnnotation)
                      .findFirst()
                      .orElseThrow(() -> new CreateInstanceFailedException("No qualified implement for interface " + parameter.getClass().getSimpleName()));

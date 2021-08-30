@@ -6,13 +6,14 @@
 </head>
 <body>
 
-<h3>例子1：使用 @Qualifier 指明具体的实现类</h3>
+<h2>2. 使用 @Qualifier 注解表明类的具体实现</h2>
+
+<h3>例子1：使用 @Qualifier 来注入一个接口的实现类</h3>
 <div class="example">
 
-    <span class="function" data-action="initContainer">初始化一个容器</span>，
-    将类<span class="variable" data-name="className">Car,Engine,GasEngine,DieselEngine</span>
-    <span class="function" data-action="registerClasses" data-params="className">注册到容器中</span>，
-    Car 类的代码如下
+    现在有一个 Car 类，它的构造方法依赖 Engine 接口，
+    <p></p>
+    Car 的代码如下
     <pre><code>
         public class Car {
             private final Engine engine;
@@ -28,7 +29,7 @@
         }
     </code></pre>
 
-    其存在对于 Engine 接口的依赖， Engine 的实现有两个，分别是
+    而对于 Engine 接口的具体实现有两个，分别是 GasEngine 和 DieselEngine
 
     <pre><code>
         @Gas
@@ -56,8 +57,9 @@
         }
     </code></pre>
 
-    如上所示，可以在注入的时候，利用 @Qualifier 构建新的注解，
+    这时候，可以通过 @Qualifier 构建衍生的注解来指明当前具体想要实例化的实现
 
+    例如
     <pre><code>
         @Documented
         @Retention(RetentionPolicy.RUNTIME)
@@ -73,12 +75,17 @@
         public @interface Diesel {
         }
     </code></pre>
+    是两个新的注解，上面都有 @Qualifier，这两个注解分别指定了 Gas 和 Diesel，然后如前面代码所示，使用 @Gas 注解分别标注实现类和注入点
 
-    然后用这些注解标注对应的具体实现类，从而
+    然后<span class="function" data-action="initContainer">初始化一个容器</span>，
+    将类<span class="variable" data-name="className">Car,Engine,GasEngine,DieselEngine</span>
+    <span class="function" data-action="registerClasses" data-params="className">全部注册到容器中</span>，
+
     <span class="function" data-action="getInstance" data-params="className" data-return="car">
-        通过容器获取到 <span class="variable" data-name="className">Car</span> 的实例后
-    </span>，
-    调用其 getEngineName 方法可以成功取得 engine 类型为
+        从而通过容器 getInstance 方法获取到 <span class="variable" data-name="className">Car</span> 的实例后，
+    </span>
+    Car 的实例中的 Engine 实际的对象是一个 GasEngine
+    通过调用其 getEngineName 方法可以成功取得 engine 类型为
     <span class="assertion" data-actual="car.getEngineName()" data-expect="equal">Gas</span>
 
 </div>

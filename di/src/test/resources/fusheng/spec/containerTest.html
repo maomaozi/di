@@ -2,23 +2,34 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>容器</title>
+    <title>Container</title>
 </head>
 <body>
-<h3>例子1：注册类到容器</h3>
+
+<h2>1. 容器</h2>
+
+容器可以用来管理用户自定义的类，用户将需要托管的类注册到容器之中，容器就会以自动化的方式代替用户完成类的实例化和依赖关系的构建，这里有几个简单的例子
+
+<h3>例子1：注册一个自定义的类到容器</h3>
 <div class="example">
-    <span class="function" data-action="initContainer">容器</span>
-    可以用来托管一个类，
-    例如对于一个类
+    例如对于一个用户自定义的类
     <span class="variable" data-name="className">Foo</span>
-    可以将其
+
+    <pre><code>
+        public class Foo {}
+    </code></pre>
+
+    我们首先
+    <span class="function" data-action="initContainer">初始化一个容器</span>
+
+    然后可以通过容器的 register 方法将 Foo
     <span class="function" data-action="registerClass" data-params="className">注册</span>
-    到容器中
+    到容器中，
     <pre><code>
         container.register(Foo.class);
     </code></pre>
-    然后可以
-    <span class="function" data-action="getInstance" data-params="className" data-return="instance">从容器中获取</span>
+    这个时候，Foo 已经被容器管理起来了，如果需要一个 Foo 类的实例，可以不用手动去实例化，而是直接通过容器的 getInstance 方法，
+    <span class="function" data-action="getInstance" data-params="className" data-return="instance">从容器中直接获取一个</span>
     <span class="assertion" data-action="getClassName" data-expect="equal" data-params="instance">Foo</span>
     的实例
     <pre><code>
@@ -26,12 +37,12 @@
     </code></pre>
 </div>
 
-<h3>例子2：从容器获取一个未注册实例</h3>
+<h3>例子2：试图从容器获取一个未注册实例</h3>
 
 <div class="example">
     如果直接从一个
     <span class="function" data-action="initContainer">容器</span>
-    中获取一个非托管类
+    中通过 getInstance 获取一个非托管类，也就是没有提前注册的类
     <span class="variable" data-name="className">Foo</span>,
     <pre><code>
         container.getInstance(Foo.class);

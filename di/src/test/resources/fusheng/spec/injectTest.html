@@ -6,12 +6,15 @@
 </head>
 <body>
 
-<h3>例子1：构造函数存在简单依赖</h3>
+<h2>2. @Inject注解</h2>
+
+前面介绍了容器可以用于托管并初始化一个类，但是如果托管的类在构造方法上存在对其他类的依赖的话，就需要使用 @Inject 注解指明依赖关系
+
+<h3>例子1：托管类构造函数存在简单依赖</h3>
 <div class="example">
-    <span class="function" data-action="initContainer">初始化一个容器</span>，
-    将类<span class="variable" data-name="className">Bar</span>
-    <span class="function" data-action="registerClass" data-params="className">注册到容器中</span>，
-    Bar 类的代码如下，其构造函数存在对 Foo 类的依赖，这里可以用 @Inject 注解修饰这个构造函数，同时注意这个构造函数不必是 public 的
+
+    例如对于如下的一个 Bar 类，
+
     <pre><code>
         public class Bar {
             private Foo foo;
@@ -26,21 +29,36 @@
             }
         }
     </code></pre>
+    <p></p>
+    可以看到其构造函数存在对 Foo 类的依赖，因此这里用 @Inject 注解修饰这个构造函数，表明这个构造函数存在依赖关系，需要容器帮忙解决（注意这个构造函数不必是 public 的）
 
-    然后将其的依赖项<span class="variable" data-name="classNameForDependency">Foo</span>也
+    因此首先<span class="function" data-action="initContainer">初始化一个容器</span>，
+
+    将类<span class="variable" data-name="className">Bar</span>
+    <span class="function" data-action="registerClass" data-params="className">注册到容器中</span>，
+    <p></p>
+
+    由于 Bar 依赖 Foo，所以在构造 Bar 类的时候需要知道 Foo 类，在这里 Foo 类也必须托管到容器之中，这样在初始化 Bar 的时候，才能被容器找到
+
+    <p></p>
+
+    通过 register 方法，将
+    <span class="variable" data-name="classNameForDependency">Foo</span>
+    也
     <span class="function" data-action="registerClass" data-params="classNameForDependency">注册到容器中</span>
 
     <pre><code>
         container.register(Foo.class);
     </code></pre>
 
-    当通过
-    容器<span class="function" data-action="getInstance" data-params="className" data-return="instance">实例化</span>
+    当通过容器 getInstance 方法
+    <span class="function" data-action="getInstance" data-params="className" data-return="instance">实例化</span>
     Bar 类的时候
     <pre><code>
         container.getInstance(Bar.class);
     </code></pre>
-    容器会试图从其托管的类中寻找 Bar 所需的依赖，并调用对应的构造方法，
+    容器会从其托管的类中寻找 Bar 所需的依赖，并调用对应的我们用 @Inject 标注构造方法，
+    <p></p>
     最终可以获得正确注入了依赖
     <span class="assertion" data-action="getClassName" data-expect="equal" data-params="instance.getFoo()">Foo</span>
     的 Bar 实例
@@ -48,10 +66,11 @@
 
 <h3>例子2：构造函数存在循环依赖</h3>
 <div class="example">
-    <span class="function" data-action="initContainer">初始化一个容器</span>，
-    将类<span class="variable" data-name="className">Circus</span>
-    <span class="function" data-action="registerClass" data-params="className">注册到容器中</span>，
-    Circus 类的代码如下，其@Inject修饰的构造函数存在对 Circus 类自身的循环依赖
+    类之间的依赖关系可能在某些时候可能会出现循环，例如一个类依赖他自己，或者 A 类依赖 B 类， B 类依赖 C 类， C 类依赖 A 类
+    <p></p>
+
+    这种关系在大部分情况是存在问题的，同时在当前版本，容器只支持构造方法注入的情况下是不支持的
+    例如对于 Circus 类，其代码如下，Circus 类中 @Inject 修饰的构造函数存在对自身的循环依赖
     <pre><code>
         public class Circus {
             private Circus circus;
@@ -63,6 +82,11 @@
         }
     </code></pre>
 
+    可以
+    <span class="function" data-action="initContainer">初始化一个容器</span>，
+    然后尝试将类<span class="variable" data-name="className">Circus</span>
+    <span class="function" data-action="registerClass" data-params="className">注册到容器中</span>，
+
     当通过容器实例化
     <span class="variable" data-name="className">Circus</span>
     类的时候
@@ -72,7 +96,7 @@
     容器会抛出
     <span class="assertion" data-action="getInstanceWithCircularDependency"
           data-expect="equal" data-params="className">CreateInstanceFailedException</span>
-    异常
+    异常，同时异常信息中会打印出循环出现的位置
 </div>
 
 </body>

@@ -1,19 +1,16 @@
 package com.mmaozi.di;
 
-import com.google.common.collect.Iterables;
 import com.mmaozi.di.exception.CreateInstanceFailedException;
+import com.mmaozi.di.qualified.QualifiedResolver;
 import com.mmaozi.di.scope.ScopeProvider;
 import com.mmaozi.di.scope.SingletonProvider;
 import com.mmaozi.di.utils.ReflectionUtils;
 
-import javax.inject.Qualifier;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -64,68 +61,24 @@ public class Container {
         }
     }
 
+    public List<Object> getInstances(Annotation annotation) {
+        return ReflectionUtils.getClassWithAnnotation(annotation, registeredClass, false)
+                              .stream()
+                              .map(this::getInstance)
+                              .collect(Collectors.toList());
+    }
+
     private List<Object> instantiateParameters(Class<?> clazz, Constructor<?> constructor) {
 
         circularDependencyChecker.in(clazz);
         List<Object> parameters = Arrays.stream(constructor.getParameters())
-                                        .map(this::resolveRealType)
+                                        .map(annotation -> QualifiedResolver.resolveRealClass(annotation, registeredClass))
                                         .map(this::getInstance)
                                         .collect(Collectors.toList());
         circularDependencyChecker.out();
 
         return parameters;
     }
-
-    private Class<?> resolveRealType(Parameter parameter) {
-        Class<?> type = parameter.getType();
-
-        if (!type.isInterface()) {
-            return type;
-        }
-
-        return Arrays.stream(parameter.getDeclaredAnnotations())
-                     .filter(annotation -> nonNull(annotation.annotationType().getAnnotation(Qualifier.class)))
-                     .map(this::getClassWithAnnotation)
-                     .findFirst()
-                     .orElseThrow(() -> new CreateInstanceFailedException("No qualified implement for interface " + parameter.getClass().getSimpleName()));
-
-    }
-
-    private Class<?> getClassWithAnnotation(Annotation annotation) {
-        List<Class<?>> matchedClasses = registeredClass
-                .stream()
-                .filter(clz -> matchClassWithAnnotation(clz, annotation))
-                .collect(Collectors.toList());
-
-        if (matchedClasses.isEmpty()) {
-            throw new CreateInstanceFailedException("No proper class found for qualifier @" + annotation.annotationType().getSimpleName());
-        }
-
-        if (matchedClasses.size() > 1) {
-            throw new CreateInstanceFailedException(String.format("More than one qualified class found for qualifier @%s:\n%s",
-                    annotation.annotationType().getSimpleName(),
-                    matchedClasses.stream()
-                                  .map(Class::getName)
-                                  .collect(Collectors.joining("\n"))
-            ));
-        }
-
-        return Iterables.getLast(matchedClasses);
-    }
-
-    private boolean matchClassWithAnnotation(Class<?> clz, Annotation annotation) {
-        Annotation declaredAnnotation = clz.getDeclaredAnnotation(annotation.annotationType());
-        if (Objects.isNull(declaredAnnotation)) {
-            return false;
-        }
-
-        try {
-            return ReflectionUtils.compareAnnotation(declaredAnnotation, annotation);
-        } catch (Exception ex) {
-            throw new CreateInstanceFailedException("Unexpected exception", ex);
-        }
-    }
-
 
     private Constructor<?> getNoArgsConstructor(Class<?> clazz) {
         try {

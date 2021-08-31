@@ -8,7 +8,6 @@ import com.mmaozi.di.utils.ReflectionUtils;
 
 import javax.inject.Qualifier;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
@@ -32,16 +31,12 @@ public class Container {
     }
 
     public <T> T getInstance(Class<T> clazz) {
-        return getInstance(clazz, null);
-    }
-
-    private <T> T getInstance(Class<T> clazz, AnnotatedElement from) {
         if (!registeredClass.contains(clazz)) {
             throw new CreateInstanceFailedException(clazz.getSimpleName() + " is not register in container");
         }
 
         ScopeProvider scopeProvider = providers.stream()
-                                               .filter(provider -> provider.available(clazz, from))
+                                               .filter(provider -> provider.available(clazz))
                                                .findFirst()
                                                .orElse(null);
 
@@ -73,7 +68,8 @@ public class Container {
 
         circularDependencyChecker.in(clazz);
         List<Object> parameters = Arrays.stream(constructor.getParameters())
-                                        .map(parameter -> getInstance(resolveRealType(parameter), parameter))
+                                        .map(this::resolveRealType)
+                                        .map(this::getInstance)
                                         .collect(Collectors.toList());
         circularDependencyChecker.out();
 

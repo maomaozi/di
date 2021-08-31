@@ -6,26 +6,32 @@
 </head>
 <body>
 
-<h3>例子1：使用 Singleton 来使得托管类为单例</h3>
+<h2>4. 使用 @Singleton 注解控制类的作用域</h2>
+
+<h3>例子1：使用 @Singleton 来使得托管类为单例</h3>
 <div class="example">
-    <span class="function" data-action="initContainer">初始化一个容器</span>，
-    将类<span class="variable" data-name="className">Buzz</span>
-    <span class="function" data-action="registerClass" data-params="className">注册到容器中</span>，
-    Buzz 类的代码如下，其构造函数存在对 Foo 类的依赖，这里用 @Singleton 注解修饰构造方法的Foo
+
+    有时候需要控制容器自动实例化类时候的行为，比如容器的默认行为是对于每一个寻找到的依赖，都会重新创建一个新的实例，在某些情况下（例如构建无状态的类时）并不必要
+    <p></p>
+    因此可以通过 @Singleton 来标志一个类，表明这个类的实例只用构建一个，这个单例可以在整个容器中共享
+    <p></p>
+    例如 Buzz 类的代码如下，这里用 @Singleton 注解修饰类 Buzz
     <pre><code>
+        @Singleton
         public class Buzz {
             private final Foo foo;
 
             @Inject
-            Buzz(@Singleton Foo foo) {
+            Buzz(Foo foo) {
                 this.foo = foo;
-            }
-
-            public Foo getFoo() {
-                return foo;
             }
         }
     </code></pre>
+
+    然后<span class="function" data-action="initContainer">初始化一个容器</span>，
+    将类<span class="variable" data-name="className">Buzz</span>
+    <span class="function" data-action="registerClass" data-params="className">注册到容器中</span>，
+
 
     <span class="function" data-action="registerClass" data-params="className">
         然后注册其依赖项
@@ -37,7 +43,7 @@
         container.register(Foo.class);
     </code></pre>
 
-    然后从容器
+    从容器
     <span class="function" data-action="getInstance" data-params="className" data-return="buzz1">
         实例化第一个
         <span class="variable" data-name="className">Buzz</span>
@@ -50,12 +56,10 @@
         实例
     </span>，
 
-    <span class="assertion" data-actual="buzz1 === buzz2" data-expect="false">
-        最终两个 Buzz 实例地址并不相等
+    <span class="assertion" data-actual="buzz1 === buzz2" data-expect="true">
+        最终两个 Buzz 实例地址是相同的，
     </span>
-    <span class="assertion" data-actual="buzz1.getFoo() === buzz2.getFoo()" data-expect="true">
-        但是两个 Buzz 中的两个 Foo 实例地址相等
-    </span>
+    说明容器只会执行一次 Buzz 的初始化过程
 </div>
 
 </body>

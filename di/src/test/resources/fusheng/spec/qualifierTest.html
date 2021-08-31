@@ -6,7 +6,7 @@
 </head>
 <body>
 
-<h2>2. 使用 @Qualifier 注解表明类的具体实现</h2>
+<h2>3. 使用 @Qualifier 注解表明类的具体实现</h2>
 
 <h3>例子1：使用 @Qualifier 来注入一个接口的实现类</h3>
 <div class="example">
@@ -93,10 +93,9 @@
 <h3>例子2：使用带属性的 @Qualifier 指明具体的实现类</h3>
 <div class="example">
 
-    <span class="function" data-action="initContainer">初始化一个容器</span>，
-    将类<span class="variable" data-name="className">Bike,Wheel,BigWheel,SmallWheel</span>
-    <span class="function" data-action="registerClasses" data-params="className">注册到容器中</span>，
-    Bike 类的代码如下
+    类似于第一个例子，这次构建一个关于 Bike 类的例子
+    <p></p>
+    Bike 类的代码如下：
     <pre><code>
         public class Bike {
 
@@ -156,6 +155,12 @@
         }
     </code></pre>
 
+    在前面的 Bike 类的代码中，我们用 @WheelType(type = BIG) 标注了具体需要注入的 Wheel类型
+
+    接下来<span class="function" data-action="initContainer">初始化一个容器</span>，
+    将类<span class="variable" data-name="className">Bike,Wheel,BigWheel,SmallWheel</span>
+    <span class="function" data-action="registerClasses" data-params="className">全部注册到容器中</span>，
+
     <span class="function" data-action="getInstance" data-params="className" data-return="bike">
         通过容器获取到 <span class="variable" data-name="className">Bike</span> 的实例后
     </span>，
@@ -167,10 +172,12 @@
 <h3>例子3：使用 @Named 指明具体的实现类</h3>
 <div class="example">
 
-    <span class="function" data-action="initContainer">初始化一个容器</span>，
-    将类<span class="variable" data-name="className">MotoBike,Wheel,BigWheel,SmallWheel</span>
-    <span class="function" data-action="registerClasses" data-params="className">注册到容器中</span>，
-    MotoBike 类的代码如下
+    @Named 是 JSR-330 中要求的，一个框架中已经实现的 @Qualified 衍生注解，他只有一个字符串的 value 属性，其作用和用户自定义的 @Qualified 衍生注解没有区别
+
+    <p></p>
+
+    例如，对于如下的一个 MotoBike 类：
+
     <pre><code>
         public class MotoBike {
 
@@ -187,7 +194,11 @@
         }
     </code></pre>
 
-    其存在对于 Wheel 接口的依赖，并且使用 @Named("smallWheel") 注解指明了Wheel的实现，对应Wheel的实现类上也有相同的注解
+    其存在对于 Wheel 接口的依赖，并且使用 @Named("smallWheel") 注解指明了Wheel的实现，对应 Wheel 的实现类上也有相同的注解
+
+    <span class="function" data-action="initContainer">初始化一个容器</span>，
+    将类<span class="variable" data-name="className">MotoBike,Wheel,BigWheel,SmallWheel</span>
+    <span class="function" data-action="registerClasses" data-params="className">注册到容器中</span>，
 
     <span class="function" data-action="getInstance" data-params="className" data-return="motoBike">
         通过容器获取到 <span class="variable" data-name="className">MotoBike</span> 的实例后

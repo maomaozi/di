@@ -1,2 +1,5 @@
-rootProject.name = 'di'
+plugins {
+    id "com.gradle.enterprise" version "3.6.3"
+}
 
+rootProject.name = 'di'

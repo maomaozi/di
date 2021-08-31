@@ -1,4 +1,4 @@
-name: Gradle Package
+name: Gradle Build
 
 on:
   release:
@@ -23,4 +23,4 @@ jobs:
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
     - name: Build with Gradle
-      run: gradle build
+      run: gradle clean build

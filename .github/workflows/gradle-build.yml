@@ -22,3 +22,9 @@ jobs:
 
     - name: Build with Gradle
       run: cd di && ./gradlew clean build
+      
+    - name: Publish Test Report
+      uses: mikepenz/action-junit-report@v2 
+      if: always()
+      with:
+        report_paths: '**/build/reports/tests/fusheng/result/*.html'

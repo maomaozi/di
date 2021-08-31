@@ -16,17 +16,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.Stack;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static java.util.Objects.nonNull;
 
 public class Container {
 
     private final Set<Class<?>> registeredClass = new HashSet<>();
-    private final Stack<Class<?>> creationStack = new Stack<>();
     private final List<ScopeProvider> providers = List.of(new SingletonProvider());
+
+    private final CircularDependencyChecker circularDependencyChecker = new CircularDependencyChecker();
 
     public void register(Class<?> clazz) {
         registeredClass.add(clazz);
@@ -53,8 +52,6 @@ public class Container {
             }
         }
 
-        checkCircularDependency(clazz);
-
         Constructor<?> constructor = ReflectionUtils.getInjectableConstructor(clazz)
                                                     .orElseGet(() -> getNoArgsConstructor(clazz));
 
@@ -74,11 +71,11 @@ public class Container {
 
     private List<Object> instantiateParameters(Class<?> clazz, Constructor<?> constructor) {
 
-        creationStack.push(clazz);
+        circularDependencyChecker.in(clazz);
         List<Object> parameters = Arrays.stream(constructor.getParameters())
                                         .map(parameter -> getInstance(resolveRealType(parameter), parameter))
                                         .collect(Collectors.toList());
-        creationStack.pop();
+        circularDependencyChecker.out();
 
         return parameters;
     }
@@ -131,32 +128,6 @@ public class Container {
         } catch (Exception ex) {
             throw new CreateInstanceFailedException("Unexpected exception", ex);
         }
-    }
-
-    private void checkCircularDependency(Class<?> clazz) {
-        IntStream.range(0, creationStack.size())
-                 .filter(idx -> creationStack.get(idx).equals(clazz))
-                 .findFirst()
-                 .ifPresent(idx -> {
-                     throw new CreateInstanceFailedException(buildCircularDependencyErrorMessage(idx));
-                 });
-    }
-
-    private String buildCircularDependencyErrorMessage(int idx) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Found circular dependencies while creating class ");
-        stringBuilder.append(creationStack.get(idx).getName());
-        stringBuilder.append("\n-----------------------------\n");
-        stringBuilder.append(creationStack.get(idx).getSimpleName());
-
-        for (int i = idx; i < creationStack.size(); ++i) {
-            stringBuilder
-                    .append("\n ↓ \n")
-                    .append(creationStack.get(i).getSimpleName())
-                    .append("\n");
-        }
-
-        return stringBuilder.toString();
     }
 
 

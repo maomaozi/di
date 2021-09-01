@@ -1,12 +1,12 @@
 package com.mmaozi.di.utils;
 
 import com.google.common.reflect.ClassPath;
-import com.mmaozi.di.exception.CreateInstanceFailedException;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,7 +31,7 @@ public class ReflectionUtils {
                      });
     }
 
-    public static boolean compareAnnotation(Annotation lhs, Annotation rhs) throws Exception {
+    public static boolean compareAnnotation(Annotation lhs, Annotation rhs) throws InvocationTargetException, IllegalAccessException {
 
         if (lhs.getClass() != rhs.getClass()) {
             return false;
@@ -87,8 +87,8 @@ public class ReflectionUtils {
         try {
             return strictMatch ? ReflectionUtils.compareAnnotation(declaredAnnotation, annotation) :
                     declaredAnnotation.annotationType().equals(annotation.annotationType());
-        } catch (Exception ex) {
-            throw new CreateInstanceFailedException("Unexpected exception", ex);
+        } catch (Exception e) {
+            return false;
         }
     }
 

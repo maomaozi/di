@@ -6,15 +6,15 @@ import com.mmaozi.di.scope.ScopeProvider;
 import com.mmaozi.di.scope.SingletonProvider;
 import com.mmaozi.di.utils.ReflectionUtils;
 
+import javax.inject.Inject;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.nonNull;
 
 public class Container {
 
@@ -32,30 +32,25 @@ public class Container {
             throw new CreateInstanceFailedException(clazz.getSimpleName() + " is not register in container");
         }
 
-        ScopeProvider scopeProvider = providers.stream()
-                                               .filter(provider -> provider.available(clazz))
-                                               .findFirst()
-                                               .orElse(null);
+        Optional<ScopeProvider> scopeProvider = providers.stream()
+                                                         .filter(provider -> provider.available(clazz))
+                                                         .findFirst();
 
-        if (nonNull(scopeProvider)) {
-            T instance = scopeProvider.getInstance(clazz);
-            if (nonNull(instance)) {
-                return instance;
-            }
+        Optional<T> instance = scopeProvider.map(provider -> provider.getInstance(clazz));
+        if (instance.isPresent()) {
+            return instance.get();
         }
 
-        Constructor<?> constructor = ReflectionUtils.getInjectableConstructor(clazz)
+        Constructor<?> constructor = ReflectionUtils.getConstructorWithAnnotationType(clazz, Inject.class)
                                                     .orElseGet(() -> getNoArgsConstructor(clazz));
 
         List<Object> parameters = instantiateParameters(clazz, constructor);
 
         try {
-            Object instance = constructor.newInstance(parameters.toArray());
+            Object newInstance = constructor.newInstance(parameters.toArray());
 
-            if (nonNull(scopeProvider)) {
-                scopeProvider.registerInstance(instance);
-            }
-            return (T) instance;
+            scopeProvider.ifPresent(provider -> provider.registerInstance(newInstance));
+            return (T) newInstance;
         } catch (Exception ex) {
             throw new CreateInstanceFailedException("Cannot create new instance for class " + clazz.getSimpleName(), ex);
         }

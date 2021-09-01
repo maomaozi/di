@@ -2,7 +2,6 @@ package com.mmaozi.di.utils;
 
 import com.google.common.reflect.ClassPath;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -18,12 +17,10 @@ import java.util.stream.Collectors;
 
 public class ReflectionUtils {
 
-    public static Optional<Constructor<?>> getInjectableConstructor(Class<?> clazz) {
+    public static Optional<Constructor<?>> getConstructorWithAnnotationType(Class<?> clazz, Class<?> annotationType) {
         return Arrays.stream(clazz.getDeclaredConstructors())
                      .filter(constructor -> Arrays.stream(constructor.getDeclaredAnnotations())
-                                                  .sequential()
-                                                  .anyMatch(annotation -> annotation.annotationType()
-                                                                                    .equals(Inject.class)))
+                                                  .anyMatch(annotation -> annotation.annotationType().equals(annotationType)))
                      .findFirst()
                      .map(constructor -> {
                          constructor.setAccessible(true);

@@ -6,6 +6,7 @@ import com.mmaozi.di.scope.annotations.Prototype;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 public class BasicScopeProvider {
 
@@ -24,8 +25,8 @@ public class BasicScopeProvider {
         return instance;
     }
 
-    public Object get(Object key) {
-        return cache.get(key);
+    public Optional<Object> getOptional(Object key) {
+        return Optional.ofNullable(cache.get(key));
     }
 
     public void remove(Object key) {

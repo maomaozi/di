@@ -1,7 +1,9 @@
-package com.mmaozi.di;
+package com.mmaozi.di.container;
 
+import com.mmaozi.di.CircularDependencyChecker;
 import com.mmaozi.di.exception.CreateInstanceFailedException;
 import com.mmaozi.di.qualified.QualifiedResolver;
+import com.mmaozi.di.scope.PrototypeProvider;
 import com.mmaozi.di.scope.ScopeProvider;
 import com.mmaozi.di.scope.SingletonProvider;
 import com.mmaozi.di.utils.ReflectionUtils;
@@ -9,17 +11,23 @@ import com.mmaozi.di.utils.ReflectionUtils;
 import javax.inject.Inject;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class Container {
+public class Container implements IContainer {
 
     private final Set<Class<?>> registeredClass = new HashSet<>();
-    private final List<ScopeProvider> providers = List.of(new SingletonProvider());
+    private final Deque<ScopeProvider> providers = new ArrayDeque<>();
+
+    public Container() {
+        providers.addFirst(new SingletonProvider());
+        providers.addFirst(new PrototypeProvider());
+    }
 
     private final CircularDependencyChecker circularDependencyChecker = new CircularDependencyChecker();
 
@@ -28,32 +36,19 @@ public class Container {
     }
 
     public <T> T getInstance(Class<T> clazz) {
+        return getInstance(clazz, null);
+    }
+
+    public <T> T getInstance(Class<T> clazz, Object context) {
         if (!registeredClass.contains(clazz)) {
             throw new CreateInstanceFailedException(clazz.getSimpleName() + " is not register in container");
         }
 
-        Optional<ScopeProvider> scopeProvider = providers.stream()
-                                                         .filter(provider -> provider.available(clazz))
-                                                         .findFirst();
-
-        Optional<T> instance = scopeProvider.map(provider -> provider.getInstance(clazz));
-        if (instance.isPresent()) {
-            return instance.get();
-        }
-
-        Constructor<?> constructor = ReflectionUtils.getConstructorWithAnnotationType(clazz, Inject.class)
-                                                    .orElseGet(() -> getNoArgsConstructor(clazz));
-
-        List<Object> parameters = instantiateParameters(clazz, constructor);
-
-        try {
-            Object newInstance = constructor.newInstance(parameters.toArray());
-
-            scopeProvider.ifPresent(provider -> provider.registerInstance(newInstance));
-            return (T) newInstance;
-        } catch (Exception ex) {
-            throw new CreateInstanceFailedException("Cannot create new instance for class " + clazz.getSimpleName(), ex);
-        }
+        return providers.stream()
+                        .filter(provider -> provider.available(clazz))
+                        .findFirst()
+                        .map(provider -> provider.getInstance(clazz, this, context))
+                        .orElseThrow(() -> new CreateInstanceFailedException("No proper scope provider for class " + clazz.getSimpleName()));
     }
 
     public List<Object> getInstances(Annotation annotation) {
@@ -61,6 +56,24 @@ public class Container {
                               .stream()
                               .map(this::getInstance)
                               .collect(Collectors.toList());
+    }
+
+    public <T> T newInstance(Class<T> clazz) {
+        Constructor<?> constructor = ReflectionUtils.getConstructorWithAnnotationType(clazz, Inject.class)
+                                                    .orElseGet(() -> getNoArgsConstructor(clazz));
+
+        List<Object> parameters = instantiateParameters(clazz, constructor);
+
+        try {
+            return (T) constructor.newInstance(parameters.toArray());
+        } catch (Exception ex) {
+            throw new CreateInstanceFailedException("Cannot create instance for class " + clazz.getSimpleName(), ex);
+        }
+    }
+
+    @Override
+    public void addScope(ScopeProvider scopeProvider) {
+        providers.addFirst(scopeProvider);
     }
 
     private List<Object> instantiateParameters(Class<?> clazz, Constructor<?> constructor) {

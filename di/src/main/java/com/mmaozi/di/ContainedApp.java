@@ -2,6 +2,7 @@ package com.mmaozi.di;
 
 import com.google.common.collect.Iterables;
 import com.mmaozi.di.annotations.Main;
+import com.mmaozi.di.container.Container;
 import com.mmaozi.di.exception.AppStartFailedException;
 import com.mmaozi.di.utils.ReflectionUtils;
 

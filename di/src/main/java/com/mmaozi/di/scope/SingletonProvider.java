@@ -1,9 +1,10 @@
 package com.mmaozi.di.scope;
 
-import javax.inject.Singleton;
+import com.mmaozi.di.container.IContainer;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 
 public class SingletonProvider implements ScopeProvider {
 
@@ -11,16 +12,18 @@ public class SingletonProvider implements ScopeProvider {
 
     @Override
     public <T> boolean available(Class<T> clz) {
-        return Objects.nonNull(clz.getDeclaredAnnotation(Singleton.class));
+        return true;
     }
 
     @Override
-    public <T> T getInstance(Class<T> clz) {
-        return (T) singletons.get(clz);
-    }
-
-    @Override
-    public <T> void registerInstance(T instance) {
-        singletons.put(instance.getClass(), instance);
+    public <T> T getInstance(Class<T> clz, IContainer container, Object context) {
+        return (T) Optional.ofNullable(singletons.get(clz))
+                           .orElseGet(() -> {
+                               T instance = container.newInstance(clz);
+                               singletons.put(clz, instance);
+                               return instance;
+                           });
+        // has issue with recursive update with code below
+        // return (T) singletons.computeIfAbsent(clz, key -> container.newInstance(clz));
     }
 }

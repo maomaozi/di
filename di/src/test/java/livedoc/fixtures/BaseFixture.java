@@ -1,6 +1,6 @@
 package livedoc.fixtures;
 
-import com.mmaozi.di.Container;
+import com.mmaozi.di.container.Container;
 import livedoc.utils.ReflectionUtils;
 
 public class BaseFixture {

@@ -3,8 +3,7 @@ package com.mmaozi.di.container;
 import com.mmaozi.di.CircularDependencyChecker;
 import com.mmaozi.di.exception.CreateInstanceFailedException;
 import com.mmaozi.di.qualified.QualifiedResolver;
-import com.mmaozi.di.scope.PrototypeProvider;
-import com.mmaozi.di.scope.ScopeProvider;
+import com.mmaozi.di.scope.BasicScopeProvider;
 import com.mmaozi.di.scope.SingletonProvider;
 import com.mmaozi.di.utils.ReflectionUtils;
 
@@ -22,11 +21,11 @@ import java.util.stream.Collectors;
 public class Container implements IContainer {
 
     private final Set<Class<?>> registeredClass = new HashSet<>();
-    private final Deque<ScopeProvider> providers = new ArrayDeque<>();
+    private final Deque<BasicScopeProvider> providers = new ArrayDeque<>();
 
     public Container() {
         providers.addFirst(new SingletonProvider());
-        providers.addFirst(new PrototypeProvider());
+        providers.addFirst(new BasicScopeProvider());
     }
 
     private final CircularDependencyChecker circularDependencyChecker = new CircularDependencyChecker();
@@ -72,7 +71,7 @@ public class Container implements IContainer {
     }
 
     @Override
-    public void addScope(ScopeProvider scopeProvider) {
+    public void addScope(BasicScopeProvider scopeProvider) {
         providers.addFirst(scopeProvider);
     }
 

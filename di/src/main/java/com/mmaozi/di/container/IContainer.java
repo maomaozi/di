@@ -1,6 +1,6 @@
 package com.mmaozi.di.container;
 
-import com.mmaozi.di.scope.ScopeProvider;
+import com.mmaozi.di.scope.BasicScopeProvider;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
@@ -16,5 +16,5 @@ public interface IContainer {
 
     List<Object> getInstances(Annotation annotation);
 
-    void addScope(ScopeProvider scopeProvider);
+    void addScope(BasicScopeProvider scopeProvider);
 }

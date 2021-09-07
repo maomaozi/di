@@ -17,12 +17,12 @@
 <p>DI 框架就是用来自动维护类之间的关系的工具，</p>
 <p>在 DI 框架中，最基本的结构就是容器，一个容器可以想象成是一个类的集合。</p>
 <p>容器可以用来管理用户自定义的类，用户将需要托管的类注册到容器之中，容器就会以自动化的方式代替用户完成类的实例化和依赖关系的构建</p>
-<p>DI 框架完全通过采用 JSR-330 定义的注解的方式，可以实现几乎没有代码侵入的情况下来完成这些功能</p>
+<p>DI 框架完全通过采用 JSR-330 定义的注解的方式，可以实现在几乎没有代码侵入的情况下完成这些功能</p>
 <p>首先我们从一些简单的例子开始</p>
 
-<h3>例子1：注册一个自定义的类到容器</h3>
+<h3>例子1：将自定义的类注册到容器</h3>
 <div class="example">
-    如果希望 DI 框架可以帮助我们管理一个类，那么容器必须要知道它，例如对于一个用户自定义的类
+    如果希望 DI 框架可以帮助我们管理一个类，那么容器必须要知道它，例如对于一个我们自定义的类
     <span class="variable" data-name="className">Foo</span>
 
     <pre><code>
@@ -38,7 +38,7 @@
     <pre><code>
         container.register(Foo.class);
     </code></pre>
-    这个时候，Foo 已经是容器中的一个托管对象类，如果我们需要一个 Foo 类的实例，可以不用手动去实例化，而是直接通过容器的 getInstance 方法，
+    这个时候，Foo 已经是容器中的一个托管对象类，如果这时我们需要一个 Foo 类的实例，可以直接通过容器的 getInstance 方法，
     <span class="function" data-action="getInstance" data-params="className" data-return="instance">从容器中直接获取一个</span>
     <span class="assertion" data-action="getClassName" data-expect="equal" data-params="instance">Foo</span>
     的实例
@@ -52,7 +52,7 @@
 <h3>例子2：试图从容器获取一个未注册实例</h3>
 
 <div class="example">
-    提前注册到容器中的类称之为"托管类"，容器只能也只会管理托管类，这样才能限定容器起作用的范围，如果直接从一个
+    提前注册到容器中的类称之为"托管类"，容器只会管理托管类，这样才能限定容器起作用的范围，如果直接从一个
     <span class="function" data-action="initContainer">容器</span>
     中通过 getInstance 获取一个非托管类
     <span class="variable" data-name="className">Foo</span>,

@@ -34,6 +34,10 @@ public class Container implements IContainer {
         registeredClass.add(clazz);
     }
 
+    public void unregister(Class<?> clazz) {
+        registeredClass.remove(clazz);
+    }
+
     public <T> T getInstance(Class<T> clazz) {
         return getInstance(clazz, null);
     }

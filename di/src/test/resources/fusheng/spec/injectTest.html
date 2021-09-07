@@ -8,12 +8,24 @@
 
 <h2>2. @Inject注解</h2>
 
-前面介绍了容器可以用于托管并初始化一个类，但是如果托管的类在构造方法上存在对其他类的依赖的话，就需要使用 @Inject 注解指明依赖关系
+<p>前面一节介绍了容器可以用于托管并初始化一个类 Foo，但是在 Foo 类其中并没有对于其他类的依赖</p>
+<p>但是现实应用中情况往往更加复杂，大多数类需要依赖其他类提供的能力，我们往往会使用组合的方式将其他类的实例作为当前类的一个成员使用</p>
+<p>这种情况下，往往我们会采用以下几种方式去获得一个依赖类的实例</p>
+
+<ul>在构造方法中引入其他的类</ul>
+<ul>通过setter去设置一个依赖类的实例</ul>
+<ul>将依赖类作为方法的参数在使用时传入</ul>
+
+<p>在 DI 框架中我们也提供了这种能力，使得在构建应用时可以更加容易地去自动获取一个依赖类的实例</p>
+<p>DI 框架采取通过构造函数注入的方式，当你的类需要一个其他的类实例的时候，需要在构造函数中声明对其的依赖，并加上 @Inject 注解</p>
+<p>只要依赖的类在框架的托管范围中，框架就能自动帮你获取到对应的具体实现</p>
+
+下面举一个简单的例子：
 
 <h3>例子1：托管类构造函数存在简单依赖</h3>
 <div class="example">
 
-    例如对于如下的一个 Bar 类，
+    对于如下的一个 Bar 类，它需要依赖一个 Foo 类作为其成员变量，
 
     <pre><code>
         public class Bar {
@@ -30,15 +42,15 @@
         }
     </code></pre>
     <p></p>
-    可以看到其构造函数存在对 Foo 类的依赖，因此这里用 @Inject 注解修饰这个构造函数，表明这个构造函数存在依赖关系，需要容器帮忙解决（注意这个构造函数不必是 public 的）
+    因此我们可以设计一个构造函数，其参数传入 Foo 类，并且使用 @Inject 注解修饰这个构造函数，表明这个构造函数中的依赖关系需要容器帮忙解决（注意到这个构造函数不必是 public 的）
 
-    因此首先<span class="function" data-action="initContainer">初始化一个容器</span>，
+    然后我们<span class="function" data-action="initContainer">初始化一个容器</span>，
 
     将类<span class="variable" data-name="className">Bar</span>
     <span class="function" data-action="registerClass" data-params="className">注册到容器中</span>，
     <p></p>
 
-    由于 Bar 依赖 Foo，所以在构造 Bar 类的时候需要知道 Foo 类，在这里 Foo 类也必须托管到容器之中，这样在初始化 Bar 的时候，才能被容器找到
+    由于 Bar 依赖 Foo，所以在构造 Bar 类的时候框架需要知道 Foo 类，在这里将 Foo 类托管到容器之中，这样在初始化 Bar 的时候，Foo 才能被容器找到
 
     <p></p>
 
@@ -52,7 +64,7 @@
     </code></pre>
 
     当通过容器 getInstance 方法
-    <span class="function" data-action="getInstance" data-params="className" data-return="instance">实例化</span>
+    <span class="function" data-action="getInstance" data-params="className" data-return="instance">实例化 </span>
     Bar 类的时候
     <pre><code>
         container.getInstance(Bar.class);
@@ -61,16 +73,60 @@
     <p></p>
     最终可以获得正确注入了依赖
     <span class="assertion" data-action="getClassName" data-expect="equal" data-params="instance.getFoo()">Foo</span>
-    的 Bar 实例
+    的 Bar 实例。
 </div>
 
-<h3>例子2：构造函数存在循环依赖</h3>
+<h3>例子2：托管类构造函数依赖一个接口</h3>
+<div class="example">
+    <p>在许多情况下，一个类会依赖一个抽象而不是具体实现，DI 框架也提供了对这依赖关系的支持，可以在运行时动态地发现一个抽象接口的具体实现</p>
+    <p>如果需要动态构造对于接口的依赖，必须满足两个条件</p>
+
+    <p>1. 接口和他的实现类都注册在容器中</p>
+    <p>2. 接口类的实现唯一</p>
+
+    若接口类的实现不唯一，容器将无法决定实例化哪个对象，此时可以参考第三节 Scope 相关内容
+
+    <p>举个例子，对于一个 T ruck 类，其代码如下</p>
+    <pre><code>
+        public class Truck {
+
+            private final Seat seat;
+
+            @Inject
+            public Truck(Seat seat) {
+                this.seat = seat;
+            }
+
+            public String getSeatName() {
+                return seat.getName();
+            }
+        }
+    </code></pre>
+
+    Truck 的构造方法中依赖一个 Seat 接口，Seat 存在唯一的实现 BigSeat
+    这时候<span class="function" data-action="initContainer">初始化一个容器</span>
+
+    将类<span class="variable" data-name="className">Truck,Seat,BigSeat</span>
+    <span class="function" data-action="registerClasses" data-params="className">全部注册到容器中</span>
+
+    然后我们就可以通过容器去
+    <span class="function" data-action="getInstance" data-params="className" data-return="car">
+        获取到 <span class="variable" data-name="className">Truck</span> 的实例，
+    </span>
+    在此过程中，容器会发现 BigSeat 唯一实现了 Seat 接口，因此获取到 Truck 的实例中的 Seat 接口实际实例化对象是一个 BigSeat，
+    <p>
+        通过调用其 getSeatName 方法取来观察其 seat 类型确实为
+        <span class="assertion" data-actual="car.getSeatName()" data-expect="equal">Big</span>
+    </p>
+</div>
+
+<h3>例子3：构造函数存在循环依赖</h3>
 <div class="example">
     类之间的依赖关系可能在某些时候可能会出现循环，例如一个类依赖他自己，或者 A 类依赖 B 类， B 类依赖 C 类， C 类依赖 A 类
     <p></p>
 
-    这种关系在大部分情况是存在问题的，同时在当前版本，容器只支持构造方法注入的情况下是不支持的
-    例如对于 Circus 类，其代码如下，Circus 类中 @Inject 修饰的构造函数存在对自身的循环依赖
+    <p>这种关系在大部分情况下是存在问题的，同时在当前版本中，由于容器只支持构造方法注入，循环依赖是不支持的</p>
+    <p>例如对于一个以下的 Circus 类，其代码如下，Circus 类中 @Inject 修饰的构造函数存在对自身的循环依赖</p>
     <pre><code>
         public class Circus {
             private Circus circus;
@@ -96,7 +152,7 @@
     容器会抛出
     <span class="assertion" data-action="getInstanceWithCircularDependency"
           data-expect="equal" data-params="className">CreateInstanceFailedException</span>
-    异常，同时异常信息中会打印出循环出现的位置
+    异常，同时异常信息中会打印出循环出现的位置，可以帮助定位问题
 </div>
 
 </body>

@@ -68,6 +68,13 @@ public class ReflectionUtils {
         }
     }
 
+    public static List<Class<?>> getImplements(Class<?> interfaceType, Collection<Class<?>> classes) {
+        return classes
+                .stream()
+                .filter(clz -> Arrays.asList(clz.getInterfaces()).contains(interfaceType))
+                .collect(Collectors.toList());
+    }
+
     public static List<Class<?>> getClassWithAnnotation(Annotation annotation, Collection<Class<?>> classes, boolean strictMatch) {
         return classes
                 .stream()

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.joining;
 
 public class QualifiedResolver {
     public static Class<?> resolveRealClass(Parameter parameter, Collection<Class<?>> classes) {
@@ -22,31 +23,47 @@ public class QualifiedResolver {
             return type;
         }
 
-        return Arrays.stream(parameter.getDeclaredAnnotations())
-                     .filter(annotation -> nonNull(annotation.annotationType().getAnnotation(Qualifier.class)))
-                     .map(annotation -> getMatchedClass(annotation, classes))
-                     .findFirst()
-                     .orElseThrow(() -> new CreateInstanceFailedException("No qualified implement for interface " + parameter.getClass().getSimpleName()));
+        List<Annotation> annotations = Arrays
+                .stream(parameter.getDeclaredAnnotations())
+                .filter(annotation -> nonNull(annotation.annotationType().getAnnotation(Qualifier.class)))
+                .collect(Collectors.toList());
 
+        if (annotations.isEmpty()) {
+            return getImplementWithoutAnnotation(type, classes);
+        }
+
+
+        List<Class<?>> implementClasses = annotations
+                .stream()
+                .map(annotation -> getMatchedClass(annotation, classes))
+                .collect(Collectors.toList());
+
+        return getOnlyImplement(type, implementClasses);
+    }
+
+    private static Class<?> getImplementWithoutAnnotation(Class<?> clz, Collection<Class<?>> classes) {
+        List<Class<?>> allImplements = ReflectionUtils.getImplements(clz, classes);
+        return getOnlyImplement(clz, allImplements);
     }
 
     private static Class<?> getMatchedClass(Annotation annotation, Collection<Class<?>> classes) {
-
         List<Class<?>> matchedClasses = ReflectionUtils.getClassWithAnnotation(annotation, classes, true);
+        return getOnlyImplement(annotation.annotationType(), matchedClasses);
+    }
 
-        if (matchedClasses.isEmpty()) {
-            throw new CreateInstanceFailedException("No proper class found with qualifier @" + annotation.annotationType().getSimpleName());
+    private static Class<?> getOnlyImplement(Class<?> clz, List<Class<?>> allImplements) {
+        if (allImplements.isEmpty()) {
+            throw new CreateInstanceFailedException("No qualified implement for " + clz.getName());
         }
 
-        if (matchedClasses.size() > 1) {
-            throw new CreateInstanceFailedException(String.format("More than one qualified class found for qualifier @%s:\n%s",
-                    annotation.annotationType().getSimpleName(),
-                    matchedClasses.stream()
-                                  .map(Class::getName)
-                                  .collect(Collectors.joining("\n"))
-            ));
+        if (allImplements.size() > 1) {
+            throw new CreateInstanceFailedException(String.format("Multiple implementation for %s\n%s", clz.getName(),
+                    allImplements.stream()
+                                 .map(Class::getName)
+                                 .collect(joining("\n")))
+            );
         }
 
-        return Iterables.getLast(matchedClasses);
+        return Iterables.getOnlyElement(allImplements);
     }
 }

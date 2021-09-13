@@ -14,10 +14,10 @@
 <p>同时 Car 也会依赖不同的部件，每个部件的生命周期也不同</p>
 <p>这个时候，手动管理以及实例化这些类以及它们的依赖关系，代码将会随着时间推移越来越复杂而难以维护，并且这些关系缺乏运行时变化的动态性，因此自动化地管理这些类将十分必要</p>
 
-<p>DI 框架就是用来自动维护类之间的关系的工具，</p>
+<p>DI 框架是一个用来自动维护类之间的关系的工具，</p>
 <p>在 DI 框架中，最基本的结构就是容器，一个容器可以想象成是一个类的集合。</p>
-<p>容器可以用来管理用户自定义的类，用户将需要托管的类注册到容器之中，容器就会以自动化的方式代替用户完成类的实例化和依赖关系的构建</p>
-<p>DI 框架完全通过采用 JSR-330 定义的注解的方式，可以实现在几乎没有代码侵入的情况下完成这些功能</p>
+<p>容器可以用来管理自定义的类，我们只需将需要托管的类注册到容器之中，容器就会以自动化地完成类的实例化和依赖关系的构建</p>
+<p>DI 框架通过 JSR-330 定义的注解的方式，可以在几乎没有代码侵入的情况下完成这些功能</p>
 <p>首先我们从一些简单的例子开始</p>
 
 <h3>例子1：将自定义的类注册到容器</h3>
@@ -29,16 +29,16 @@
         public class Foo {}
     </code></pre>
 
-    我们需要把它通过容器管理起来，那么
+    我们需要把它通过容器管理起来，首先
     <span class="function" data-action="initContainer">初始化一个容器</span>
 
-    然后就可以通过容器的 register 方法将 Foo
+    然后可以通过容器的 register 方法将 Foo
     <span class="function" data-action="registerClass" data-params="className">注册</span>
     到容器中，
     <pre><code>
         container.register(Foo.class);
     </code></pre>
-    这个时候，Foo 已经是容器中的一个托管对象类，如果这时我们需要一个 Foo 类的实例，可以直接通过容器的 getInstance 方法，
+    如果这时我们需要一个 Foo 类的实例，可以直接通过容器的 getInstance 方法，
     <span class="function" data-action="getInstance" data-params="className" data-return="instance">从容器中直接获取一个</span>
     <span class="assertion" data-action="getClassName" data-expect="equal" data-params="instance">Foo</span>
     的实例
@@ -46,7 +46,7 @@
         container.getInstance(Foo.class);
     </code></pre>
 
-    在这个只有一个类的例子中，实例化 Foo 类和直接 new Foo() 一样简单。
+    在这个只有一个类的例子中，通过容器实例化 Foo 类和直接 new Foo() 一样简单。
 </div>
 
 <h3>例子2：试图从容器获取一个未注册实例</h3>

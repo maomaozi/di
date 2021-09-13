@@ -8,11 +8,14 @@
 
 <h2>3. 使用 @Qualifier 注解表明类的具体实现</h2>
 
+<p>在第二节中，我们介绍了使用 @Inject 注解来为一个类寻找依赖，其中也涉及到了一个类依赖一个接口的情况</p>
+<p>如果接口的实现存在多个，容器应该如何确定哪一个实现应该被使用？</p>
+<p>这个时候就可以通过 @Qualifier 以及其衍生注解注解手动地指定接口对应的实现类</p>
+<p>下面举几个例子</p>
+
 <h3>例子1：使用 @Qualifier 来注入一个接口的实现类</h3>
 <div class="example">
-
-    现在有一个 Car 类，它的构造方法依赖 Engine 接口，
-    <p></p>
+    <p>现在有一个 Car 类，它的构造方法依赖 Engine 接口</p>
     Car 的代码如下
     <pre><code>
         public class Car {
@@ -59,7 +62,7 @@
 
     这时候，可以通过 @Qualifier 构建衍生的注解来指明当前具体想要实例化的实现
 
-    例如
+    例如定义以下两个注解
     <pre><code>
         @Documented
         @Retention(RetentionPolicy.RUNTIME)
@@ -75,7 +78,10 @@
         public @interface Diesel {
         }
     </code></pre>
-    是两个新的注解，上面都有 @Qualifier，这两个注解分别指定了 Gas 和 Diesel，然后如前面代码所示，使用 @Gas 注解分别标注实现类和注入点
+    <p>可以看到 @Gas 和 @Diesel 上面都有 @Qualifier，这两个注解分别会用于标记 GasEngine 和 DieselEngine</p>
+
+    <p>然后如前面代码所示，两个Engine实现类上使用对应的注解分别做了标注</p>
+    <p>同时，在 Car 的构造方法中，使用 @Gas 指明了此处的 Engine 接口需要一个 GasEngine 的实现</p>
 
     然后<span class="function" data-action="initContainer">初始化一个容器</span>，
     将类<span class="variable" data-name="className">Car,Engine,GasEngine,DieselEngine</span>
@@ -93,9 +99,13 @@
 <h3>例子2：使用带属性的 @Qualifier 指明具体的实现类</h3>
 <div class="example">
 
-    类似于第一个例子，这次构建一个关于 Bike 类的例子
-    <p></p>
-    Bike 类的代码如下：
+    <p>
+        第一个例子指出来如何使用 @Qualifier 构建衍生的注解用于区分接口的实现，
+    </p>
+    <p>我们在使用 @Qualifier的时候，不仅可以通过不同的注解来区分，也可以在注解中加入额外的属性来匹配</p>
+    <p>这样对于一个接口的大量实现，就不用定义过多的不同注解</p>
+
+    这次构建一个 Bike 类，Bike 类的代码如下：
     <pre><code>
         public class Bike {
 
@@ -140,7 +150,7 @@
         }
     </code></pre>
 
-    WheelType注解的相关代码如下，其中包括一个枚举，定义了 BIG 和 SMALL 两种 Wheel 尺寸
+    WheelType 注解的相关代码如下，不同点在于，这个注解其中包括一个枚举属性 Type，可以设置为 BIG 和 SMALL 两种 Wheel 尺寸
 
     <pre><code>
         @Documented
@@ -172,9 +182,14 @@
 <h3>例子3：使用 @Named 指明具体的实现类</h3>
 <div class="example">
 
-    @Named 是 JSR-330 中要求的，一个框架中已经实现的 @Qualified 衍生注解，他只有一个字符串的 value 属性，其作用和用户自定义的 @Qualified 衍生注解没有区别
 
-    <p></p>
+    <p>
+        @Named 是 JSR-330 中要求的，一个在框架中已经实现的 @Qualified 衍生注解，他只有一个字符串的 value 属性，其作用和用户自定义的 @Qualified 衍生注解没有区别
+    </p>
+
+    <p>
+        通过字符串的内容匹配可以实现接口和实现类的配对
+    </p>
 
     例如，对于如下的一个 MotoBike 类：
 
@@ -196,15 +211,17 @@
 
     其存在对于 Wheel 接口的依赖，并且使用 @Named("smallWheel") 注解指明了Wheel的实现，对应 Wheel 的实现类上也有相同的注解
 
-    <span class="function" data-action="initContainer">初始化一个容器</span>，
+    然后我们<span class="function" data-action="initContainer">初始化一个容器</span>，
     将类<span class="variable" data-name="className">MotoBike,Wheel,BigWheel,SmallWheel</span>
-    <span class="function" data-action="registerClasses" data-params="className">注册到容器中</span>，
+    <span class="function" data-action="registerClasses" data-params="className">全部注册到容器中</span>，
 
     <span class="function" data-action="getInstance" data-params="className" data-return="motoBike">
         通过容器获取到 <span class="variable" data-name="className">MotoBike</span> 的实例后
     </span>，
     调用其 getWheel 方法可以成功取得 Wheel 类型为
     <span class="assertion" data-actual="motoBike.getWheelType()" data-expect="equal">Small</span>
+
+    证明通过 @Named("smallWheel") 注解，可以成功为 MotoBike 注入 SmallWheel 实现
 
 </div>
 </body>

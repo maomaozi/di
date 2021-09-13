@@ -8,14 +8,22 @@
 
 <h2>4. 使用 @Singleton 注解控制类的作用域</h2>
 
+<p>我们在使用一个类的时候，往往需要关注其对应实例的生命周期，以便节省内存或者实现不同类实例的状态隔离</p>
+<p>例如对于一个无状态的服务或者工具类，在整个系统中可能只需要一个共享的单例</p>
+<p>而一些容器类对象或者数据传输对象，我们会在不同的使用场景会实例化不同的副本，并在使用后对其进行销毁</p>
+
+<p>在 DI 框架中，我们使用 @Scope 的衍生注解来对容器托管对象的生命周期进行管理</p>
+
+<p>由于在大部分时候我们构建的组件都是无状态的，出于对节省资源的考虑，DI 容器默认的对象生命周期为单例，</p>
+<p>这意味着在默认情况下，多次调用 getInstance 获取到的对象实例会是同一个</p>
+
+<p>这和使用 @Singleton 注解对类进行显式的标注是等价的，下面是一个关于 @Singleton 的简单例子</p>
+
 <h3>例子1：使用 @Singleton 来使得托管类为单例</h3>
 <div class="example">
 
-    有时候需要控制容器自动实例化类时候的行为，比如容器的默认行为是对于每一个寻找到的依赖，都会重新创建一个新的实例，在某些情况下（例如构建无状态的类时）并不必要
     <p></p>
-    因此可以通过 @Singleton 来标志一个类，表明这个类的实例只用构建一个，这个单例可以在整个容器中共享
-    <p></p>
-    例如 Buzz 类的代码如下，这里用 @Singleton 注解修饰类 Buzz
+    Buzz 类的实现使用 @Singleton 注解修饰
     <pre><code>
         @Singleton
         public class Buzz {
@@ -28,7 +36,7 @@
         }
     </code></pre>
 
-    然后<span class="function" data-action="initContainer">初始化一个容器</span>，
+    然后我们<span class="function" data-action="initContainer">初始化一个容器</span>，
     将类<span class="variable" data-name="className">Buzz</span>
     <span class="function" data-action="registerClass" data-params="className">注册到容器中</span>，
 
@@ -43,7 +51,9 @@
         container.register(Foo.class);
     </code></pre>
 
-    从容器
+    <p>现在我们试着重复多次从容器中实例化 Buzz 类</p>
+
+    首先从容器
     <span class="function" data-action="getInstance" data-params="className" data-return="buzz1">
         实例化第一个
         <span class="variable" data-name="className">Buzz</span>
@@ -57,7 +67,7 @@
     </span>，
 
     <span class="assertion" data-actual="buzz1 === buzz2" data-expect="true">
-        最终两个 Buzz 实例地址是相同的，
+        可以看到，最终两个 Buzz 实例地址是相同的，
     </span>
     说明容器只会执行一次 Buzz 的初始化过程
 </div>
